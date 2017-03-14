@@ -1,6 +1,6 @@
 # Objective
 
-To serve as a low-fuss, minimal configuration reverse proxy for APIs. No complicated configurations, user portals, authentication, load balancing or anything. The point is that this can run behind something like Cloudflare that can take care of many of these concerns, and indeed many API gateway solutions do run behind load balancers or CDNs.
+To serve as a low-fuss, minimal configuration reverse proxy for APIs. No complicated configurations, user portals, authentication, load balancing or anything. The point is that this can run behind something like Cloudflare that can take care of many of these concerns. Indeed, many API gateway solutions run behind load balancers or CDNs.
 
 ### Minimal configuration:
 
@@ -42,7 +42,7 @@ Next, create a configuration file. The options are:
 * `rules`: A map of route prefix to backend. The backend will see the entire URL except for the version string, if that was specified. Rules are not applied in any particular order.
 * `not_found_error` (Optional):
 
-When you have created the configuration and build the gateway, just run it as
+When you have created the configuration and built the gateway, just run it as
 
 ```
 gateway path-to-config.json
