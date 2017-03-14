@@ -33,7 +33,7 @@ To serve as a low-fuss, minimal configuration reverse proxy for APIs. No complic
 
 # Getting started
 
-You'll need to build the binary with `go build`. It's a static, standalone binary with no dependencies and there are no dependencies outside the standard library.
+You'll need to build the binary with `go build`. It's a static, standalone binary with no dependencies. The code can also be used as a Go library, and it has no dependencies outside the standard library.
 
 Next, create a configuration file. The options are:
 
