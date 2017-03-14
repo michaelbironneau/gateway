@@ -36,7 +36,7 @@ func load(b []byte) (*Config, error) {
 	var config Config
 	err := json.Unmarshal(b, &config)
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
 	return &config, nil
 }
