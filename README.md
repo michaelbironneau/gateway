@@ -38,7 +38,7 @@ You'll need to build the binary with `go build`. It's a static, standalone binar
 Next, create a configuration file. The options are:
 
 * `version` (Optional): This is a string that gets prefixed to URLs and ignored by backends e.g. a version string of `v1` would lead the gateway to route `/v1/users/asdf` to `/users/asdf`.
-* `port`: What port to run the gateway on
+* `port` (Optional): What port to run the gateway on. If this is not specified the `HTTP_PLATFORM_PORT` environment variable will be used.
 * `rules`: A map of route prefix to backend. The backend will see the entire URL except for the version string, if that was specified. Rules are not applied in any particular order.
 * `not_found_error` (Optional): Custom error object to return in case the request URL does not match any rules.
 
