@@ -10,7 +10,7 @@ import (
 func main() {
 	var (
 		configPath string
-		port string
+		port       string
 	)
 	if len(os.Args) != 2 {
 		if s, ok := os.LookupEnv("GATEWAY_CONFIG_FILE"); ok {
