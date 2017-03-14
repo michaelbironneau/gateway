@@ -40,7 +40,7 @@ Next, create a configuration file. The options are:
 * `version` (Optional): This is a string that gets prefixed to URLs and ignored by backends e.g. a version string of `v1` would lead the gateway to route `/v1/users/asdf` to `/users/asdf`.
 * `port`: What port to run the gateway on
 * `rules`: A map of route prefix to backend. The backend will see the entire URL except for the version string, if that was specified. Rules are not applied in any particular order.
-* `not_found_error` (Optional):
+* `not_found_error` (Optional): Custom error object to return in case the request URL does not match any rules. 
 
 When you have created the configuration and built the gateway, just run it as
 
