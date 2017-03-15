@@ -35,6 +35,7 @@ func New(c *Config) http.HandlerFunc {
 		if !ok {
 			resp, _ := json.Marshal(c.NotFoundResponse)
 			w.WriteHeader(http.StatusNotFound)
+			w.Header().Set("Content-type", "application/json")
 			w.Write(resp)
 			return
 		}
