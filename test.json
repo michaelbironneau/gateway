@@ -1,0 +1,15 @@
+{
+  "version": "v1",
+  "port": "8081",
+  "rules": {
+    "/entities": "127.0.0.1:8089",
+    "/entity-types": "127.0.0.1:8089",
+    "/history": "127.0.0.1:8089"
+  },
+  "not_found_error": {
+    "code": 404,
+    "domain": "Route not found",
+    "message": "The requested route was not found"
+  },
+  "fallback_rule": "www.openenergi.com"
+}

@@ -21,6 +21,13 @@ type Config struct {
 
 	//  The response to return when an unmapped route is requested - an arbitrary JSON object that will be marshalled.
 	NotFoundResponse interface{} `json:"not_found_error"`
+
+	//  Fallback URL if the version string is not used - this is commonly the documentation page for the APIs.
+	//  The fallback URL will only be used if
+	//  - The `version` configuration is not blank
+	//  - The URL does not start with the version
+	//  - The fallback rule is not blank
+	FallbackRule string `json:"fallback_rule"`
 }
 
 // Load loads a configuration file and parses it into a Config struct.
