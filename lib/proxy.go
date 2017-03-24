@@ -13,7 +13,7 @@ func backend(c *Config, r *http.Request) (string, string, bool) {
 	)
 	if c.Version != "" {
 		ps := strings.SplitN(r.URL.Path, "/", 3)
-		if len(ps) != 3 {
+		if len(ps) != 3 || strings.ToLower(ps[1]) != strings.ToLower(c.Version) {
 			return tryFallback(c, r) //expect URL of form /{version}/
 		}
 		pathToMatch = "/" + ps[2]
@@ -30,7 +30,7 @@ func backend(c *Config, r *http.Request) (string, string, bool) {
 
 func tryFallback(c *Config, r *http.Request) (string, string, bool){
 	if c.Version != "" && c.FallbackRule != "" {
-		return c.FallbackRule, "/", true
+		return c.FallbackRule, r.URL.Path, true
 	}
 	return "", "", false
 }
