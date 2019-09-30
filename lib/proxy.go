@@ -48,7 +48,7 @@ func New(c *Config) http.HandlerFunc {
 		}
 		(&httputil.ReverseProxy{
 			Director: func(r *http.Request) {
-				r.URL.Scheme = "http"
+				r.URL.Scheme = c.Scheme
 				r.URL.Host = b
 				r.URL.Path = url
 				r.Host = b

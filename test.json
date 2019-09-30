@@ -11,5 +11,6 @@
     "domain": "Route not found",
     "message": "The requested route was not found"
   },
-  "fallback_rule": "www.openenergi.com"
+  "fallback_rule": "www.openenergi.com",
+  "scheme": "https"
 }

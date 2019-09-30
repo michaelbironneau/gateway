@@ -28,6 +28,9 @@ type Config struct {
 	//  - The URL does not start with the version
 	//  - The fallback rule is not blank
 	FallbackRule string `json:"fallback_rule"`
+
+	//  Scheme is the type of URL scheme to use for requests to the backend, such as "http" or "https".
+	Scheme string `json:"scheme"`
 }
 
 // Load loads a configuration file and parses it into a Config struct.
