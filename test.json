@@ -1,10 +1,13 @@
 {
-  "version": "v1",
   "port": "8081",
-  "rules": {
-    "/entities": "127.0.0.1:8089",
-    "/entity-types": "127.0.0.1:8089",
-    "/history": "127.0.0.1:8089"
+  "versions": {
+    "v1": {
+      "/google": "google.com:443",
+      "/history": "127.0.0.1:8089"
+    },
+    "v2": {
+      "/microsoft": "microsoft.com:443"
+    }
   },
   "not_found_error": {
     "code": 404,
