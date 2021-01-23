@@ -31,6 +31,8 @@ type Config struct {
 	Scheme string `json:"scheme"`
 
 	//  Interceptor is a post-response hook to log the request/response and/or modify the response.
+	//  At this time, you can only modify responses sent from a backend (not the one you specify in not_found_error or
+	//  any response which is created by a Filter you have configured if using this as a library).
 	Interceptor func(r *http.Request, resp *http.Response)
 
 	//  Filter is a pre-proxy hook to allow or deny a request - `true` means the request is allowed; `false` is denied

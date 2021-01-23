@@ -1,6 +1,6 @@
 # Status
 
-This project has been in production use since 2017, running behind a WAF.
+This project has been in production use since 2017, running behind a WAF and load balancer.
 
 # Objective
 
@@ -66,7 +66,7 @@ Alternatively, you can set the path of the config file in an environment variabl
 
 You can also use the code as a library, importing `github.com/michaelbironneau/gateway/lib`. For this purpose you will need to create a new gateway using `lib.New`.
 
-The benefit of using the gateway as a library is that you can intercept all requests both before they are handled (to filter them), and afterwards, before they are returned to the client and log (possibly modify) the response. If you read the response, remember to re-set it, eg. 
+The benefit of using the gateway as a library is that you can intercept all requests both before they are handled (to filter them), and afterwards, before they are returned to the client and log (possibly modify) the response. At this time, you *cannot* modify responses from the gateway itself (that is, when a backend is not found so your configurable "not found response" is returned, or when a Filter you have implemented denies access) - but you can modify any response that one of your backends creates. If you read the response, remember to re-set it, eg. 
 
 ```go
 bodyBytes, _ := ioutil.ReadAll(resp.Body)
