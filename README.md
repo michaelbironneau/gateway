@@ -57,3 +57,33 @@ gateway path-to-config.json
 ```
 
 Alternatively, you can set the path of the config file in an environment variable `GATEWAY_CONFIG_FILE` and run `gateway` without any additional arguments.
+
+# Library use 
+
+You can also use the code as a library, importing `github.com/michaelbironneau/gateway/lib`. For this purpose you will need to create a new gateway using `New()`.
+
+The benefit of using the gateway as a library is that you can intercept all requests before they are returned to the client and log (possibly modify) the response. If you read the response, remember to re-set it, eg. 
+
+```go
+bodyBytes, _ := ioutil.ReadAll(resp.Body)
+resp.Body.Close()  //  must close
+resp.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
+```
+
+Example that intercepts and prints out response body):
+
+```go
+func main(){            
+    //...read config into c (see main.go for example)
+    logger := func(r *http.Request, resp *http.Response){
+        log.Println("Response:/n--------/n")
+        bodyBytes, _ := ioutil.ReadAll(resp.Body)
+        resp.Body.Close()  //  must close
+        resp.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes)) // reset it now we've read it all
+        log.Println(string(bodyBytes) + "\n")
+    }
+    http.HandleFunc("/", lib.New(c, logger))
+    log.Fatal(http.ListenAndServe(":"+port, nil))
+}
+
+```

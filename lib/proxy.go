@@ -1,7 +1,9 @@
 package lib
 
 import (
+	"bytes"
 	"encoding/json"
+	"io/ioutil"
 	"net/http"
 	"net/http/httputil"
 	"strings"
@@ -32,8 +34,30 @@ func tryFallback(c *Config, r *http.Request) (string, string, bool){
 	return "", "", false
 }
 
-// New creates a new gateway.
-func New(c *Config) http.HandlerFunc {
+func bytesToResponse(statusCode int, contentType string, buffer []byte) *http.Response {
+	r := ioutil.NopCloser(bytes.NewReader(buffer))
+	h := http.Header{}
+	h.Set("Content-type", contentType)
+	return &http.Response{
+		Status:           "",
+		StatusCode:       statusCode,
+		Header: h,
+		Body:             r,
+		ContentLength:    int64(len(buffer)),
+	}
+}
+
+// New creates a new gateway. Config is mandatory - logger is optional and can be nil. It will be invoked once the response
+// completes, either succeeding or returning an error. logger should not block.
+func New(c *Config, logger func(*http.Request, *http.Response)) http.HandlerFunc {
+	var l func(*http.Request, *http.Response)
+	l = logger
+	if l == nil {
+		l = func(*http.Request, *http.Response){
+			// no-op
+			return
+		}
+	}
 	return func(w http.ResponseWriter, req *http.Request) {
 		b, url, ok := backend(c, req)
 		if !ok {
@@ -41,6 +65,7 @@ func New(c *Config) http.HandlerFunc {
 			w.WriteHeader(http.StatusNotFound)
 			w.Header().Set("Content-type", "application/json")
 			w.Write(resp)
+			l(req, bytesToResponse(http.StatusNotFound, "application/json", resp))
 			return
 		}
 		(&httputil.ReverseProxy{
@@ -49,6 +74,10 @@ func New(c *Config) http.HandlerFunc {
 				r.URL.Host = b
 				r.URL.Path = url
 				r.Host = b
+			},
+			ModifyResponse: func(resp *http.Response) error {
+				l(req, resp)
+				return nil
 			},
 		}).ServeHTTP(w, req)
 	}
