@@ -1,3 +1,7 @@
+# Status
+
+This project has been in production use since 2017, running behind a WAF.
+
 # Objective
 
 To serve as a low-fuss, minimal configuration reverse proxy for APIs. No complicated configurations, user portals, authentication, load balancing or anything. The point is that this can run behind something like Cloudflare that can take care of many of these concerns. Indeed, many API gateway solutions run behind load balancers or CDNs.
@@ -60,7 +64,7 @@ Alternatively, you can set the path of the config file in an environment variabl
 
 # Library use 
 
-You can also use the code as a library, importing `github.com/michaelbironneau/gateway/lib`. For this purpose you will need to create a new gateway using `New()`.
+You can also use the code as a library, importing `github.com/michaelbironneau/gateway/lib`. For this purpose you will need to create a new gateway using `lib.New`.
 
 The benefit of using the gateway as a library is that you can intercept all requests before they are returned to the client and log (possibly modify) the response. If you read the response, remember to re-set it, eg. 
 
