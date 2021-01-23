@@ -3,6 +3,7 @@ package lib
 import (
 	"encoding/json"
 	"io/ioutil"
+	"net/http"
 	"strings"
 )
 
@@ -28,6 +29,16 @@ type Config struct {
 
 	//  Scheme is the type of URL scheme to use for requests to the backend, such as "http" or "https".
 	Scheme string `json:"scheme"`
+
+	//  Interceptor is a post-response hook to log the request/response and/or modify the response.
+	Interceptor func(r *http.Request, resp *http.Response)
+
+	//  Filter is a pre-proxy hook to allow or deny a request - `true` means the request is allowed; `false` is denied
+	//  By always returning true but blocking for some time, it can also be used to implement rate limiting.
+	//  The second return argument can be used to return a given status code, and the third a given response (JSON).
+	Filter func(r *http.Request) (bool, int, interface{})
+
+
 }
 
 // Load loads a configuration file and parses it into a Config struct.
@@ -49,4 +60,13 @@ func load(b []byte) (*Config, error) {
 		config.Versions[strings.ToLower(k)] = config.Versions[k] //make version string case insensitive
 	}
 	return &config, nil
+}
+
+func (c *Config) setDefaults(){
+	if c.Interceptor == nil {
+		c.Interceptor = func(*http.Request, *http.Response){return}
+	}
+	if c.Filter == nil {
+		c.Filter = func(*http.Request)(bool, int, interface{}){return true, 0, nil}
+	}
 }

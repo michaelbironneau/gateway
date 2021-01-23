@@ -38,6 +38,6 @@ func main() {
 		port = c.Port
 	}
 
-	http.HandleFunc("/", lib.New(c, nil))
+	http.HandleFunc("/", lib.New(c))
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 }

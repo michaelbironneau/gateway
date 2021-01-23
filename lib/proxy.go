@@ -47,27 +47,35 @@ func bytesToResponse(statusCode int, contentType string, buffer []byte) *http.Re
 	}
 }
 
-// New creates a new gateway. Config is mandatory - logger is optional and can be nil. It will be invoked once the response
-// completes, either succeeding or returning an error. logger should not block.
-func New(c *Config, logger func(*http.Request, *http.Response)) http.HandlerFunc {
-	var l func(*http.Request, *http.Response)
-	l = logger
-	if l == nil {
-		l = func(*http.Request, *http.Response){
-			// no-op
+//  writeJSON marshals a JSON object to bytes and writes as body, ignoring any errors (will just be an empty response)
+func (c *Config) writeJSON(req *http.Request, w http.ResponseWriter, status int, obj interface{})  {
+	resp, _ := json.Marshal(obj)
+	w.WriteHeader(status)
+	w.Header().Set("Content-type", "application/json")
+	w.Write(resp)
+	c.Interceptor(req, bytesToResponse(status, "application/json", resp))
+}
+
+// New creates a new gateway.
+func New(c *Config) http.HandlerFunc {
+	c.setDefaults()
+	return func(w http.ResponseWriter, req *http.Request) {
+
+		//  1. Apply Filter
+		allow, filterStatus, filterBody := c.Filter(req)
+		if !allow {
+			c.writeJSON(req, w, filterStatus, filterBody)
 			return
 		}
-	}
-	return func(w http.ResponseWriter, req *http.Request) {
+
+		// 2. Find backend, or return "not found" if not found
 		b, url, ok := backend(c, req)
 		if !ok {
-			resp, _ := json.Marshal(c.NotFoundResponse)
-			w.WriteHeader(http.StatusNotFound)
-			w.Header().Set("Content-type", "application/json")
-			w.Write(resp)
-			l(req, bytesToResponse(http.StatusNotFound, "application/json", resp))
+			c.writeJSON(req, w, http.StatusNotFound, c.NotFoundResponse)
 			return
 		}
+
+		// 3. Reverse proxy request
 		(&httputil.ReverseProxy{
 			Director: func(r *http.Request) {
 				r.URL.Scheme = c.Scheme
@@ -76,7 +84,7 @@ func New(c *Config, logger func(*http.Request, *http.Response)) http.HandlerFunc
 				r.Host = b
 			},
 			ModifyResponse: func(resp *http.Response) error {
-				l(req, resp)
+				c.Interceptor(req, resp)
 				return nil
 			},
 		}).ServeHTTP(w, req)
