@@ -2,6 +2,7 @@ package lib
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
@@ -56,6 +57,17 @@ func (c *Config) writeJSON(req *http.Request, w http.ResponseWriter, status int,
 	c.Interceptor(req, bytesToResponse(status, "application/json", resp))
 }
 
+func clone(r *http.Request) *http.Request {
+	r2 := r.Clone(context.Background())
+	bodyBytes, _ := ioutil.ReadAll(r.Body)
+	r.Body.Close()  //  must close
+	bodyCopy := make([]byte, len(bodyBytes))
+	copy(bodyBytes, bodyCopy)
+	r.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
+	r2.Body = ioutil.NopCloser(bytes.NewBuffer(bodyCopy))
+	return r2
+}
+
 // New creates a new gateway.
 func New(c *Config) http.HandlerFunc {
 	c.setDefaults()
@@ -74,7 +86,7 @@ func New(c *Config) http.HandlerFunc {
 			c.writeJSON(req, w, http.StatusNotFound, c.NotFoundResponse)
 			return
 		}
-
+		clonedReq := clone(req)
 		// 3. Reverse proxy request
 		(&httputil.ReverseProxy{
 			Director: func(r *http.Request) {
@@ -84,7 +96,7 @@ func New(c *Config) http.HandlerFunc {
 				r.Host = b
 			},
 			ModifyResponse: func(resp *http.Response) error {
-				c.Interceptor(req, resp)
+				c.Interceptor(clonedReq, resp)
 				return nil
 			},
 		}).ServeHTTP(w, req)
