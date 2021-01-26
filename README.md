@@ -68,6 +68,8 @@ You can also use the code as a library, importing `github.com/michaelbironneau/g
 
 The benefit of using the gateway as a library is that you can intercept all requests both before they are handled (to filter them), and afterwards, before they are returned to the client and log (possibly modify) the response. At this time, you *cannot* modify responses from the gateway itself (that is, when a backend is not found so your configurable "not found response" is returned, or when a Filter you have implemented denies access) - but you can modify any response that one of your backends creates. If you read the response, remember to re-set it, eg. 
 
+The gateway will set the `X-ELAPSED-TIME` header in the intercepted request (so it will not be returned to the client, but you can log it). This is measured in seconds.
+
 ```go
 bodyBytes, _ := ioutil.ReadAll(resp.Body)
 resp.Body.Close()  //  must close
