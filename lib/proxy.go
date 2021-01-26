@@ -4,10 +4,12 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httputil"
 	"strings"
+	"time"
 )
 
 func backend(c *Config, r *http.Request) (string, string, bool) {
@@ -62,7 +64,7 @@ func clone(r *http.Request) *http.Request {
 	bodyBytes, _ := ioutil.ReadAll(r.Body)
 	r.Body.Close()  //  must close
 	bodyCopy := make([]byte, len(bodyBytes))
-	copy(bodyBytes, bodyCopy)
+	copy(bodyCopy, bodyBytes)
 	r.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
 	r2.Body = ioutil.NopCloser(bytes.NewBuffer(bodyCopy))
 	return r2
@@ -72,7 +74,7 @@ func clone(r *http.Request) *http.Request {
 func New(c *Config) http.HandlerFunc {
 	c.setDefaults()
 	return func(w http.ResponseWriter, req *http.Request) {
-
+		start := time.Now().UTC()
 		//  1. Apply Filter
 		allow, filterStatus, filterBody := c.Filter(req)
 		if !allow {
@@ -87,6 +89,7 @@ func New(c *Config) http.HandlerFunc {
 			return
 		}
 		clonedReq := clone(req)
+
 		// 3. Reverse proxy request
 		(&httputil.ReverseProxy{
 			Director: func(r *http.Request) {
@@ -96,6 +99,8 @@ func New(c *Config) http.HandlerFunc {
 				r.Host = b
 			},
 			ModifyResponse: func(resp *http.Response) error {
+				elapsed := time.Now().UTC().Sub(start)
+				clonedReq.Header.Set("X-ELAPSED-TIME", fmt.Sprintf("%2.3f", elapsed.Seconds()))
 				c.Interceptor(clonedReq, resp)
 				return nil
 			},
